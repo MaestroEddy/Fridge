@@ -3,27 +3,34 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		DB34B5E1264032E200F02C1B /* FridgeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB34B5E0264032E200F02C1B /* FridgeApp.swift */; };
-		DB34B5E3264032E200F02C1B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB34B5E2264032E200F02C1B /* ContentView.swift */; };
+		DB34B5E3264032E200F02C1B /* ProductsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB34B5E2264032E200F02C1B /* ProductsListView.swift */; };
 		DB34B5E5264032E200F02C1B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DB34B5E4264032E200F02C1B /* Assets.xcassets */; };
 		DB34B5E8264032E200F02C1B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DB34B5E7264032E200F02C1B /* Preview Assets.xcassets */; };
 		DB34B5EA264032E200F02C1B /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB34B5E9264032E200F02C1B /* Persistence.swift */; };
 		DB34B5ED264032E200F02C1B /* Fridge.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = DB34B5EB264032E200F02C1B /* Fridge.xcdatamodeld */; };
+		DB34B5FA264037D600F02C1B /* ProductsListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB34B5F9264037D600F02C1B /* ProductsListViewModel.swift */; };
+		DB34B5FD2640387700F02C1B /* Product.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB34B5FC2640387700F02C1B /* Product.swift */; };
+		DB34B6032640559A00F02C1B /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB34B6022640559A00F02C1B /* Extensions.swift */; };
+		DB34B6072640996800F02C1B /* SwipeCell in Frameworks */ = {isa = PBXBuildFile; productRef = DB34B6062640996800F02C1B /* SwipeCell */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		DB34B5DD264032E100F02C1B /* Fridge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fridge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DB34B5E0264032E200F02C1B /* FridgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FridgeApp.swift; sourceTree = "<group>"; };
-		DB34B5E2264032E200F02C1B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		DB34B5E2264032E200F02C1B /* ProductsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsListView.swift; sourceTree = "<group>"; };
 		DB34B5E4264032E200F02C1B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DB34B5E7264032E200F02C1B /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		DB34B5E9264032E200F02C1B /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
 		DB34B5EC264032E200F02C1B /* Fridge.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Fridge.xcdatamodel; sourceTree = "<group>"; };
 		DB34B5EE264032E200F02C1B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DB34B5F9264037D600F02C1B /* ProductsListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsListViewModel.swift; sourceTree = "<group>"; };
+		DB34B5FC2640387700F02C1B /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
+		DB34B6022640559A00F02C1B /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,6 +38,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DB34B6072640996800F02C1B /* SwipeCell in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -57,7 +65,8 @@
 			isa = PBXGroup;
 			children = (
 				DB34B5E0264032E200F02C1B /* FridgeApp.swift */,
-				DB34B5E2264032E200F02C1B /* ContentView.swift */,
+				DB34B6022640559A00F02C1B /* Extensions.swift */,
+				DB34B5F7264037AF00F02C1B /* GoodsList */,
 				DB34B5E4264032E200F02C1B /* Assets.xcassets */,
 				DB34B5E9264032E200F02C1B /* Persistence.swift */,
 				DB34B5EE264032E200F02C1B /* Info.plist */,
@@ -73,6 +82,16 @@
 				DB34B5E7264032E200F02C1B /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		DB34B5F7264037AF00F02C1B /* GoodsList */ = {
+			isa = PBXGroup;
+			children = (
+				DB34B5E2264032E200F02C1B /* ProductsListView.swift */,
+				DB34B5F9264037D600F02C1B /* ProductsListViewModel.swift */,
+				DB34B5FC2640387700F02C1B /* Product.swift */,
+			);
+			path = GoodsList;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -91,6 +110,9 @@
 			dependencies = (
 			);
 			name = Fridge;
+			packageProductDependencies = (
+				DB34B6062640996800F02C1B /* SwipeCell */,
+			);
 			productName = Fridge;
 			productReference = DB34B5DD264032E100F02C1B /* Fridge.app */;
 			productType = "com.apple.product-type.application";
@@ -118,6 +140,9 @@
 				Base,
 			);
 			mainGroup = DB34B5D4264032E100F02C1B;
+			packageReferences = (
+				DB34B6052640996800F02C1B /* XCRemoteSwiftPackageReference "SwipeCell" */,
+			);
 			productRefGroup = DB34B5DE264032E100F02C1B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -146,8 +171,11 @@
 			files = (
 				DB34B5ED264032E200F02C1B /* Fridge.xcdatamodeld in Sources */,
 				DB34B5EA264032E200F02C1B /* Persistence.swift in Sources */,
-				DB34B5E3264032E200F02C1B /* ContentView.swift in Sources */,
+				DB34B5FA264037D600F02C1B /* ProductsListViewModel.swift in Sources */,
+				DB34B5E3264032E200F02C1B /* ProductsListView.swift in Sources */,
 				DB34B5E1264032E200F02C1B /* FridgeApp.swift in Sources */,
+				DB34B5FD2640387700F02C1B /* Product.swift in Sources */,
+				DB34B6032640559A00F02C1B /* Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -336,6 +364,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DB34B6052640996800F02C1B /* XCRemoteSwiftPackageReference "SwipeCell" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/EnesKaraosman/SwipeCell";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DB34B6062640996800F02C1B /* SwipeCell */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DB34B6052640996800F02C1B /* XCRemoteSwiftPackageReference "SwipeCell" */;
+			productName = SwipeCell;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		DB34B5EB264032E200F02C1B /* Fridge.xcdatamodeld */ = {
