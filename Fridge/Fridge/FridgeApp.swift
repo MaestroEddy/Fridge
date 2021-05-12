@@ -7,8 +7,9 @@ struct FridgeApp: App {
         WindowGroup {
             ProductsListView(viewModel: ProductsListView.ProductsListViewModel(products:
                                                                                 [Product(name: "Bread",
-                                                                                         expirationDate: Date(),
-                                                                                         barcode: nil)]))
+                                                                                         expirationDate: "2 Apr 2021",
+                                                                                         barcode: nil)])
+            )
         }
     }
 }

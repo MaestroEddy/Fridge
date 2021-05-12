@@ -1,8 +1,8 @@
 import Foundation
 
 struct Product: Identifiable {
-    let name: String
-    let expirationDate: Date
+    var name: String
+    var expirationDate: String
     let barcode: String?
     let id = UUID()
 }
