@@ -5,6 +5,8 @@ protocol BarcodeScannerParameters {
     var recognizableAreaRect: CGRect { get }
     var recognizableAreaWidth: CGFloat { get }
     var recognizableAreaHeight: CGFloat { get }
+    var codeRectangleWidth: CGFloat { get }
+    var codeRectangleCornerRadius: CGFloat { get }
 }
 
 extension BarcodeScannerParameters {
@@ -18,4 +20,6 @@ extension BarcodeScannerParameters {
         let w = UIScreen.main.bounds.width * recognizableAreaWidthMultiplier
         return CGRect(x: x, y: y, width: w, height: recognizableAreaHeight)
     }
+    var codeRectangleWidth: CGFloat { 3 }
+    var codeRectangleCornerRadius: CGFloat { 3 }
 }

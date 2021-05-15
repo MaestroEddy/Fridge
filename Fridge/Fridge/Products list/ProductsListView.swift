@@ -2,97 +2,118 @@ import SwiftUI
 import Combine
 
 struct ProductsListView: View {
-    @ObservedObject var viewModel: ProductsListViewModel
-    @State var showingActionSheet = false
-    @State var showingAddNewProductView = false
-    @State var showingBarcodeScannerView = false
-    var cameraViewModel: CameraViewModel
-    let backgroundColor = Color(#colorLiteral(red: 0.9370916486, green: 0.9369438291, blue: 0.9575446248, alpha: 1))
+    @ObservedObject private var viewModel: ViewModel
+    @State private var showingActionSheet = false
+    @State private var showingAddNewProductView = false
+    @State private var showingBarcodeScannerView = false
+    private var cameraViewModel: CameraViewModel
+    private let fetchedBarcode = NSMutableString(string: "")
 
-    init(viewModel: ProductsListViewModel) {
+    init(viewModel: ViewModel) {
         self.viewModel = viewModel
         cameraViewModel = CameraViewModel()
-        cameraViewModel.code = Binding(get: { "" },
-                                       set: { print($0) })
     }
 
     var body: some View {
         NavigationView {
             List {
-                Section(header: headerView(with: "Ready for eat"),
-                        footer: footerView(with: "These products have not yet expired")) {
-                    ForEach(viewModel.products) {
-                        ProductsListViewItem(product: $0)
-                    }.onDelete(perform: {
-                        viewModel.products.remove(atOffsets: $0)
-                    })
-                }
-                Section(header: headerView(with: "Expired"),
-                        footer: footerView(with: "These products have expired")) {
-                    ForEach(viewModel.products) {
-                        ProductsListViewItem(product: $0)
-                    }.onDelete(perform: {
-                        viewModel.products.remove(atOffsets: $0)
-                    })
-                }
+                listSection(isForExpiredProducts: false)
+                listSection(isForExpiredProducts: true)
                 Section() { }
             }
-            .navigationBarTitle("My Fridge")
+            .navigationBarTitle(LocalizedStringKey("ProductList.Title"))
             .toolbar {
-                Button(action: {
-                    print("Plus was tapped")
-                    showingActionSheet = true
-                }) {
-                    Image(systemName: "plus")
-                }
-                .sheet(isPresented: $showingAddNewProductView) {
-                    AddProductView(product: Product(name: "Rice", expirationDate: "1 Apr 2021", barcode: nil))
-                }
+                Button(action: { showingActionSheet = true }) { Image(systemName: "plus") }
+                    .sheet(isPresented: $showingAddNewProductView) {
+                        AddProductView(viewModel: AddProductView.ViewModel(product: newProduct()),
+                                       isPresented: $showingAddNewProductView)
+                    }
             }
             .onAppear() {
-                UITableView.appearance().backgroundColor = UIColor(backgroundColor)
+                UITableView.appearance().backgroundColor = UIColor(Color.tableBackground)
             }
             .actionSheet(isPresented: $showingActionSheet) {
-                ActionSheet(title: Text("Add new product"), message: Text("Select a new product adding option"), buttons: [
-                    .default(Text("Scan barcode")) { showingBarcodeScannerView = true },
-                    .default(Text("Add manually")) { showingAddNewProductView = true },
+                ActionSheet(title: Text(LocalizedStringKey("Alert.AddNewProduct.Title")),
+                            message: Text(LocalizedStringKey("Alert.AddNewProduct.Description")),
+                            buttons: [
+                    .default(Text(LocalizedStringKey("Alert.AddNewProduct.Button.ScanBarcode"))) { showingBarcodeScannerView = true },
+                    .default(Text(LocalizedStringKey("Alert.AddNewProduct.Button.AddManually"))) { showingAddNewProductView = true },
                     .cancel()
                 ])
             }
         }
-        .sheet(isPresented: $showingBarcodeScannerView) {
-            BarcodeScanner(camera: cameraViewModel)
+        .onReceive(cameraViewModel.barcodeScanned) {
+            showingBarcodeScannerView = false
+            fetchedBarcode.setString($0)
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + C.delayAddNewProductView) {
+                self.showingAddNewProductView = true
+            }
         }
+        .sheet(isPresented: $showingBarcodeScannerView) {
+            BarcodeScanner(viewModel: cameraViewModel)
+        }
+    }
+}
+
+// MARK: - Helpers
+
+extension ProductsListView {
+
+    private func listSection(isForExpiredProducts: Bool) -> some View {
+        Section(header: headerView(with: isForExpiredProducts ? C.expiredProductsTitle : C.notExpiredProductsTitle),
+                footer: footerView(with: isForExpiredProducts ? C.expiredProductsDescription : C.notExpiredProductsDescription)) {
+            ForEach(viewModel.products) {
+                if isForExpiredProducts ? $0.isExpired : !$0.isExpired {
+                    ProductsListViewItem(viewModel: ProductsListViewItem.ViewModel(product: $0))
+                }
+            }.onDelete {
+                $0.forEach {
+                    viewModel.removeProduct(viewModel.products[$0])
+                    viewModel.storeProducts()
+                }
+            }
+        }
+    }
+
+    private func newProduct() -> Product {
+        let code = fetchedBarcode as String
+        let productWithCode = viewModel.product(code: code)
+        let newProduct = viewModel.createProduct()
+        newProduct.name = productWithCode?.name ?? ""
+        newProduct.barcode = productWithCode?.barcode ?? code
+        fetchedBarcode.setString("")
+        return newProduct
     }
 
     private func headerView(with text: String) -> some View {
         Text(text)
             .font(.subheadline)
             .padding()
-            .frame(width: UIScreen.main.bounds.width, height: 28, alignment: .leading)
-            .background(backgroundColor)
+            .frame(width: UIScreen.main.bounds.width, height: C.headerViewHeight, alignment: .leading)
+            .background(Color.tableBackground)
     }
 
     private func footerView(with text: String) -> some View {
         Text(text)
             .font(.footnote)
             .multilineTextAlignment(.leading)
-            .padding(.bottom, 20.0)
-            .listRowBackground(backgroundColor)
+            .padding(.bottom, C.footerViewBottomPadding)
+            .listRowBackground(Color.tableBackground)
     }
 }
 
-struct ProductsListViewItem: View {
-    let product: Product
+// MARK: - Constants
 
-    var body: some View {
-        HStack {
-            Text(product.name).layoutPriority(1)
-            Spacer().layoutPriority(1)
-            Text(product.expirationDate).layoutPriority(1)
+extension ProductsListView {
 
-            NavigationLink(destination: ProductDetails(product: product)) { }
-        }
+    struct C {
+        static let expiredProductsDescription = LocalizedStringKey("ProductList.Expired.Description").asString
+        static let notExpiredProductsDescription = LocalizedStringKey("ProductList.NotExpired.Description").asString
+        static let expiredProductsTitle = LocalizedStringKey("ProductList.Expired").asString
+        static let notExpiredProductsTitle = LocalizedStringKey("ProductList.NotExpired").asString
+        static let headerViewHeight: CGFloat = 28
+        static let footerViewBottomPadding: CGFloat = 20
+        static let delayAddNewProductView: Double = 0.5
     }
 }
 
@@ -101,15 +122,6 @@ struct ProductsListViewItem: View {
 struct ProductsListView_Previews: PreviewProvider {
 
     static var previews: some View {
-        let products = [Product(name: "Milk", expirationDate: "2 Apr 2021", barcode: nil),
-                        Product(name: "Bread", expirationDate: "2 Apr 2021", barcode: nil)]
-        ProductsListView(viewModel: ProductsListView.ProductsListViewModel(products: products))
-    }
-}
-
-struct ProductsListViewItem_Previews: PreviewProvider {
-
-    static var previews: some View {
-        return ProductsListViewItem(product: Product(name: "Cheese", expirationDate: "2 Apr 2021", barcode: nil))
+        ProductsListView(viewModel: ProductsListView.ViewModel())
     }
 }

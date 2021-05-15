@@ -1,16 +1,36 @@
 import AVFoundation
 import SwiftUI
+import Combine
 
 class CameraViewModel: NSObject, AVCaptureMetadataOutputObjectsDelegate {
-    var session = AVCaptureSession()
-    var output = AVCaptureMetadataOutput()
+    let session = AVCaptureSession()
+    let output = AVCaptureMetadataOutput()
     var preview = AVCaptureVideoPreviewLayer()
-    var recognizedCodeBlock: ((String) -> ())?
-    var code: Binding<String>?
+    let barcodeScanned = PassthroughSubject<String, Never>()
+
+    private var lastScannedCode = ""
 
     override init() {
         super.init()
         setup()
+    }
+
+    func resetLastScannedCode() {
+        lastScannedCode = ""
+    }
+
+    func metadataOutput(_ output: AVCaptureMetadataOutput,
+                        didOutput metadataObjects: [AVMetadataObject],
+                        from connection: AVCaptureConnection) {
+
+        guard let metadataObject = metadataObjects.first,
+              let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
+              let stringValue = readableObject.stringValue,
+              lastScannedCode != stringValue else { return }
+        lastScannedCode = stringValue
+        DispatchQueue.main.async {
+            self.barcodeScanned.send(stringValue)
+        }
     }
 
     private func setup() {
@@ -27,15 +47,5 @@ class CameraViewModel: NSObject, AVCaptureMetadataOutputObjectsDelegate {
         output.setMetadataObjectsDelegate(self, queue: .global())
         output.metadataObjectTypes = [.qr, .ean13, .code128]
         session.commitConfiguration()
-    }
-
-    func metadataOutput(_ output: AVCaptureMetadataOutput,
-                        didOutput metadataObjects: [AVMetadataObject],
-                        from connection: AVCaptureConnection) {
-
-        guard let metadataObject = metadataObjects.first,
-              let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
-              let stringValue = readableObject.stringValue else { return }
-        code?.wrappedValue = stringValue
     }
 }

@@ -2,33 +2,37 @@ import SwiftUI
 import AVFoundation
 
 struct BarcodeScanner: View, BarcodeScannerParameters {
-    let camera: CameraViewModel
+    let viewModel: CameraViewModel
 
     var body: some View {
         ZStack {
-            CameraPreview(cameraVM: camera)
-            RoundedRectangle(cornerRadius: 3)
-                .stroke(Color.white, lineWidth: 3)
+            CameraPreview(viewModel: viewModel)
+            RoundedRectangle(cornerRadius: codeRectangleCornerRadius)
+                .stroke(Color.white, lineWidth: codeRectangleWidth)
                 .frame(width: recognizableAreaWidth, height: recognizableAreaHeight)
+        }
+        .onDisappear() {
+            viewModel.session.stopRunning()
+            viewModel.resetLastScannedCode()
         }
     }
 }
 
 struct CameraPreview: UIViewRepresentable, BarcodeScannerParameters {
-    private var camera: CameraViewModel
+    private var viewModel: CameraViewModel
 
-    init(cameraVM: CameraViewModel) {
-        camera = cameraVM
+    init(viewModel: CameraViewModel) {
+        self.viewModel = viewModel
     }
 
     func makeUIView(context: Context) -> some UIView {
         let view = UIView(frame: UIScreen.main.bounds)
-        camera.preview = AVCaptureVideoPreviewLayer(session: camera.session)
-        camera.preview.frame = view.frame
-        camera.preview.videoGravity = .resizeAspectFill
-        view.layer.addSublayer(camera.preview)
-        camera.session.startRunning()
-        camera.output.rectOfInterest = camera.preview.metadataOutputRectConverted(fromLayerRect: recognizableAreaRect)
+        viewModel.preview = AVCaptureVideoPreviewLayer(session: viewModel.session)
+        viewModel.preview.frame = view.frame
+        viewModel.preview.videoGravity = .resizeAspectFill
+        view.layer.addSublayer(viewModel.preview)
+        viewModel.session.startRunning()
+        viewModel.output.rectOfInterest = viewModel.preview.metadataOutputRectConverted(fromLayerRect: recognizableAreaRect)
         return view
     }
 
@@ -39,6 +43,6 @@ struct BarcodeScanner_Previews: PreviewProvider {
     @State static var code: String? = ""
 
     static var previews: some View {
-        BarcodeScanner(camera: CameraViewModel())
+        BarcodeScanner(viewModel: CameraViewModel())
     }
 }

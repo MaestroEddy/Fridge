@@ -1,44 +1,67 @@
 import SwiftUI
 
 struct ProductDetails: View {
-    @State var product: Product
+    var viewModel: ProductDetails.ViewModel
 
     var body: some View {
         List {
             Section(header: Text("")
-                        .frame(width: UIScreen.main.bounds.width, height: 28, alignment: .leading)
-                        .background(Color(#colorLiteral(red: 0.9370916486, green: 0.9369438291, blue: 0.9575446248, alpha: 1)))) {
+                        .frame(width: UIScreen.main.bounds.width, height: C.sectionHeight, alignment: .leading)
+                        .background(Color.tableBackground)) {
                 VStack {
                     HStack {
-                        Text("Name").layoutPriority(1)
+                        Text(LocalizedStringKey("Product.Name")).layoutPriority(1)
                         Spacer().layoutPriority(1)
-                        TextField("Name", text: $product.name)
-                            .padding(.trailing, -5.0)
-                            .layoutPriority(1)
-                            .multilineTextAlignment(.trailing)
+                        TextField(LocalizedStringKey("Product.Name"), text: Binding<String>(
+                                    get: { viewModel.product.name },
+                                    set: { viewModel.product.name = $0 }))
+                        .padding(.trailing, -C.padding)
+                        .layoutPriority(1)
+                        .multilineTextAlignment(.trailing)
                     }
-                    .padding(.vertical, 5.0)
+                    .padding(.vertical, C.padding)
                     Divider()
                     HStack {
-                        Text("Expiration Date").layoutPriority(1)
+                        Text(LocalizedStringKey("Product.ExpirationDate")).layoutPriority(1)
                         Spacer().layoutPriority(1)
-                        TextField("3 Apr 2022", text: $product.expirationDate)
-                            .padding(.trailing, -5.0)
+                        TextField(Date().defaultFormatted(),
+                                  text: Binding<String>(
+                                    get: { viewModel.product.expirationDateString },
+                                    set: { viewModel.product.expirationDateString = $0 }))
+                            .padding(.trailing, -C.padding)
                             .layoutPriority(1)
                             .multilineTextAlignment(.trailing)
                     }
-                    .padding(.vertical, 5.0)
+                    .padding(.vertical, C.padding)
                 }
             }
         }
         .onAppear() {
-            UITableView.appearance().backgroundColor = #colorLiteral(red: 0.9370916486, green: 0.9369438291, blue: 0.9575446248, alpha: 1)
-        }.navigationBarTitleDisplayMode(.inline)
+            UITableView.appearance().backgroundColor = UIColor(Color.tableBackground)
+        }
+        .onDisappear() {
+            viewModel.storeProducts()
+        }
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
+//MARK: - Constants
+
+extension ProductDetails {
+
+    struct C {
+        static let sectionHeight: CGFloat = 28
+        static let padding: CGFloat = 5
+    }
+}
+
+
+// MARK: - Preview
+
 struct ProductDetails_Previews: PreviewProvider {
+
     static var previews: some View {
-        ProductDetails(product: Product(name: "Icecream", expirationDate: "1 Apr 2021", barcode: nil))
+        ProductDetails(viewModel: ProductDetails.ViewModel(product: Product()))
     }
 }

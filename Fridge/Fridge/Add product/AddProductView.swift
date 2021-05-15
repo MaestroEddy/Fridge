@@ -1,36 +1,55 @@
 import SwiftUI
 
 struct AddProductView: View {
-    @State var product: Product
-    @State var showCancelActionSheet = false
-    @Environment(\.presentationMode) var presentationMode
+    private let viewModel: AddProductView.ViewModel
+    private var isPresented: Binding<Bool>
+    @State private var showCancelActionSheet = false
+    @State private var isProductValid = false
+
+    init(viewModel: AddProductView.ViewModel, isPresented: Binding<Bool>) {
+        self.viewModel = viewModel
+        self.isPresented = isPresented
+    }
+
+    private func setup() {
+        viewModel.product.onUpdate = { isProductValid = $0.isValid }
+    }
 
     var body: some View {
-        NavigationView {
-            ProductDetails(product: product)
-                .navigationTitle("Add product")
-                .navigationBarItems(leading: Button("Cancel") {
-                    print("Cancel Pressed")
-                    showCancelActionSheet = true
-                }, trailing: Button("Add") {
-                    print("Add Pressed")
-                })
+        setup()
+        return NavigationView {
+            ProductDetails(viewModel: ProductDetails.ViewModel(product: viewModel.product))
+                .navigationTitle(LocalizedStringKey("Product.Add"))
+                .navigationBarItems(leading: Button(LocalizedStringKey("Cancel")) { showCancelActionSheet = true },
+                                    trailing: Button(LocalizedStringKey("Add")) {
+                                        isPresented.wrappedValue = false
+                                        viewModel.isProductAddingCancelled = false
+                }
+                .disabled(!isProductValid))
                 .actionSheet(isPresented: $showCancelActionSheet) {
-                    ActionSheet(title: Text("Cancel adding?"),
-                                message: Text("Are you sure you want to cancel adding new product?"),
+                    ActionSheet(title: Text(LocalizedStringKey("Alert.CancelAdding.Title")),
+                                message: Text(LocalizedStringKey("Alert.CancelAdding.Description")),
                                 buttons: [
-                                    .default(Text("Keep editing")),
-                                    .default(Text("Cancel adding")) { presentationMode.wrappedValue.dismiss() },
+                                    .default(Text(LocalizedStringKey("Alert.CancelAdding.Button.KeepEditing"))),
+                                    .default(Text(LocalizedStringKey("Alert.CancelAdding.Button.CancelAdding"))) {
+                                        isPresented.wrappedValue = false
+                                        viewModel.isProductAddingCancelled = true
+                                    },
                                     .cancel()
                                 ]
                     )
+                }
+                .onDisappear() {
+                    viewModel.onViewDissapear()
                 }
         }
     }
 }
 
 struct AddProductView_Previews: PreviewProvider {
+
     static var previews: some View {
-        AddProductView(product: Product(name: "Jam", expirationDate: "1 May 2021", barcode: nil))
+        AddProductView(viewModel: AddProductView.ViewModel(product: Product()),
+                       isPresented: Binding(get: { true }, set: { _ in }))
     }
 }
