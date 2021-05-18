@@ -45,7 +45,7 @@ struct ProductsListView: View {
         .onReceive(cameraViewModel.barcodeScanned) {
             showingBarcodeScannerView = false
             fetchedBarcode.setString($0)
-            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + C.delayAddNewProductView) {
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Constants.delayAddNewProductView) {
                 self.showingAddNewProductView = true
             }
         }
@@ -60,13 +60,14 @@ struct ProductsListView: View {
 extension ProductsListView {
 
     private func listSection(isForExpiredProducts: Bool) -> some View {
-        Section(header: headerView(with: isForExpiredProducts ? C.expiredProductsTitle : C.notExpiredProductsTitle),
-                footer: footerView(with: isForExpiredProducts ? C.expiredProductsDescription : C.notExpiredProductsDescription)) {
+        Section(header: headerView(with: isForExpiredProducts ? Constants.expiredProductsTitle : Constants.notExpiredProductsTitle),
+                footer: footerView(with: isForExpiredProducts ? Constants.expiredProductsDescription : Constants.notExpiredProductsDescription)) {
             ForEach(viewModel.products) {
                 if isForExpiredProducts ? $0.isExpired : !$0.isExpired {
                     ProductsListViewItem(viewModel: ProductsListViewItem.ViewModel(product: $0))
                 }
-            }.onDelete {
+            }
+            .onDelete {
                 $0.forEach {
                     viewModel.removeProduct(viewModel.products[$0])
                     viewModel.storeProducts()
@@ -81,6 +82,7 @@ extension ProductsListView {
         let newProduct = viewModel.createProduct()
         newProduct.name = productWithCode?.name ?? ""
         newProduct.barcode = productWithCode?.barcode ?? code
+        newProduct.expirationDate = Date().addingTimeInterval(Constants.defaultProductExpirationInterval)
         fetchedBarcode.setString("")
         return newProduct
     }
@@ -89,7 +91,7 @@ extension ProductsListView {
         Text(text)
             .font(.subheadline)
             .padding()
-            .frame(width: UIScreen.main.bounds.width, height: C.headerViewHeight, alignment: .leading)
+            .frame(width: UIScreen.main.bounds.width, height: Constants.headerViewHeight, alignment: .leading)
             .background(Color.tableBackground)
     }
 
@@ -97,7 +99,7 @@ extension ProductsListView {
         Text(text)
             .font(.footnote)
             .multilineTextAlignment(.leading)
-            .padding(.bottom, C.footerViewBottomPadding)
+            .padding(.bottom, Constants.footerViewBottomPadding)
             .listRowBackground(Color.tableBackground)
     }
 }
@@ -106,7 +108,7 @@ extension ProductsListView {
 
 extension ProductsListView {
 
-    struct C {
+    struct Constants {
         static let expiredProductsDescription = LocalizedStringKey("ProductList.Expired.Description").asString
         static let notExpiredProductsDescription = LocalizedStringKey("ProductList.NotExpired.Description").asString
         static let expiredProductsTitle = LocalizedStringKey("ProductList.Expired").asString
@@ -114,6 +116,7 @@ extension ProductsListView {
         static let headerViewHeight: CGFloat = 28
         static let footerViewBottomPadding: CGFloat = 20
         static let delayAddNewProductView: Double = 0.5
+        static let defaultProductExpirationInterval: Double = 24 * 60 * 60
     }
 }
 

@@ -26,7 +26,7 @@ extension ProductsListView {
         func fetchProducts() {
             CoreDataManager.shared.allProducts {
                 let current = Date()
-                self.products = $0.sorted { $0.expirationDate ?? current < $1.expirationDate ?? current }
+                self.products = $0.sorted { $0.coreDataExpirationDate ?? current < $1.coreDataExpirationDate ?? current }
             }
         }
 

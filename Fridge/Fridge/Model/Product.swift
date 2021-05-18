@@ -3,13 +3,19 @@ import CoreData
 @objc(Product)
 public class Product: NSManagedObject, Identifiable {
     @NSManaged public var coreDataName: String?
-    @NSManaged public var coreDataExpirationDate: String?
+    @NSManaged public var coreDataExpirationDate: Date?
     @NSManaged public var coreDataBarcode: String?
 
     public let id = UUID()
     var onUpdate: ((Product) -> ())?
 
-    var expirationDate: Date? { expirationDateString.toDate() }
+    var expirationDate: Date? {
+        get { coreDataExpirationDate }
+        set {
+            coreDataExpirationDate = newValue
+            onUpdate?(self)
+        }
+    }
 
     var name: String {
         get { coreDataName ?? "" }
@@ -20,11 +26,7 @@ public class Product: NSManagedObject, Identifiable {
     }
 
     var expirationDateString: String {
-        get { coreDataExpirationDate ?? "" }
-        set {
-            coreDataExpirationDate = newValue
-            onUpdate?(self)
-        }
+        get { coreDataExpirationDate?.defaultFormatted() ?? "" }
     }
 
     var barcode: String? {
@@ -36,7 +38,7 @@ public class Product: NSManagedObject, Identifiable {
     }
 
     var isValid: Bool {
-        guard let expirationDate = coreDataExpirationDate?.toDate() else { return false }
+        guard let expirationDate = coreDataExpirationDate else { return false }
         let calendar = Calendar.current
         let expirationYear = calendar.component(.year, from: expirationDate)
         let currentYear = calendar.component(.year, from: Date())
@@ -44,7 +46,7 @@ public class Product: NSManagedObject, Identifiable {
     }
 
     var isExpired: Bool {
-        guard let expirationDate = coreDataExpirationDate?.toDate() else { return true }
+        guard let expirationDate = coreDataExpirationDate else { return true }
         return expirationDate < Date()
     }
 }

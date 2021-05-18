@@ -6,33 +6,32 @@ struct ProductDetails: View {
     var body: some View {
         List {
             Section(header: Text("")
-                        .frame(width: UIScreen.main.bounds.width, height: C.sectionHeight, alignment: .leading)
+                        .frame(width: UIScreen.main.bounds.width, height: Constants.sectionHeight, alignment: .leading)
                         .background(Color.tableBackground)) {
                 VStack {
                     HStack {
                         Text(LocalizedStringKey("Product.Name")).layoutPriority(1)
                         Spacer().layoutPriority(1)
-                        TextField(LocalizedStringKey("Product.Name"), text: Binding<String>(
+                        TextField(LocalizedStringKey("Product.Name"), text: Binding(
                                     get: { viewModel.product.name },
                                     set: { viewModel.product.name = $0 }))
-                        .padding(.trailing, -C.padding)
+                        .padding(.trailing, -Constants.padding)
                         .layoutPriority(1)
                         .multilineTextAlignment(.trailing)
                     }
-                    .padding(.vertical, C.padding)
+                    .padding(.vertical, Constants.padding)
                     Divider()
                     HStack {
                         Text(LocalizedStringKey("Product.ExpirationDate")).layoutPriority(1)
                         Spacer().layoutPriority(1)
-                        TextField(Date().defaultFormatted(),
-                                  text: Binding<String>(
-                                    get: { viewModel.product.expirationDateString },
-                                    set: { viewModel.product.expirationDateString = $0 }))
-                            .padding(.trailing, -C.padding)
-                            .layoutPriority(1)
+                        DatePicker(LocalizedStringKey(""), selection: Binding(
+                                    get: { viewModel.product.expirationDate ?? Date() },
+                                    set: { viewModel.product.expirationDate = $0 }))
+                            .padding(.trailing, -Constants.padding)
                             .multilineTextAlignment(.trailing)
+                            .layoutPriority(1)
                     }
-                    .padding(.vertical, C.padding)
+                    .padding(.vertical, Constants.padding)
                 }
             }
         }
@@ -50,7 +49,7 @@ struct ProductDetails: View {
 
 extension ProductDetails {
 
-    struct C {
+    struct Constants {
         static let sectionHeight: CGFloat = 28
         static let padding: CGFloat = 5
     }
