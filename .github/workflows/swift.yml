@@ -9,7 +9,7 @@ jobs:
         uses: actions/checkout@master
       - name: Build and test
         run: xcodebuild -project Fridge.xcodeproj \
-                       # -scheme Fridge 
+                     
                        clean archive \
                         -configuration release \
                         -sdk iphoneos 
